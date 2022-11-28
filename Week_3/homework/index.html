@@ -1,105 +1,644 @@
 <!DOCTYPE html>
+
+
+
+
 <html>
 
+
+
+
+
+
+
 <head>
+
+
 	<title>Weather Complete</title>
+
+
 	<meta charset="UTF-8" />
-  <link rel="stylesheet" type="text/css" href="style.css">
+
+
+ <link rel="stylesheet" type="text/css" href="style.css">
+
+
 </head>
 
+
+
+
+
+
+
 <body>
+
+
 	<div id='main-container'>
+
+
 		<div id='weather-container'>
-		</div> 
-	</div>
-	<div id='side-container'>
-		<div>
-			<input id='search-input' placeholder='search for a city'></input>
-			<button id='search-button' onclick="search()">search</button>
+
+
+					<h3 id='todays-date' class='date'></h3>
+
+
+					<h1 id='which-city'></h1>
+
+
+					<h2 id='weather'></h2>
+
+
+					<h2 id='temperature'></h2>
+
+
+					<h4 id='aqi'></h4>
+
+
+					<img id = 'emoji'></img>
+
+
 		</div>
-		<ul id='search-results-list'></ul>
+
+
+		<div id = 'five-day-cards'></div>
+
+
 	</div>
+
+
+	<div id='side-container'>
+
+
+		<div>
+
+
+			<input id='search-input' placeholder='search for a city'></input>
+
+
+			<button id='search-button' onclick="search()">search</button>
+
+
+		</div>
+
+
+		<ul id='search-results-list'></ul>
+
+
+	</div>
+
+
 </body>
 
-<script>
-		// USE YOUR OWN API KEY
-		const apiKey = "";
 
-        // variable that stores the city that is chosen
+
+
+
+
+
+<script>
+
+
+		// USE YOUR OWN API KEY
+
+
+		const apiKey = "4fa89980077ea95558bed505ab7f94e3";
+
+
+		//my own apiKey, but for some reason doesn't support the One Call API
+
+
+		//18a4c49445ea1b2efb80240ad3f49ee4
+
+
+		//fix later
+
+
+
+
+
+
+
+       // variable that stores the city that is chosen
+
+
 		let city;
-        // variable that stores the weather and forecast for the city
+
+
+       // variable that stores the weather and forecast for the city
+
+
 		let weather;
-        // the variable that stores the air quality index for the city
+
+
+       // the variable that stores the air quality index for the city
+
+
 		let aqi;
 
+
+
+
+
+
+
 		// function that accepts that a number N and returns the name of the day and the date N days from now as a string
+
+
 		function formatDate(daysFromNow = 0) {
+
+
 			let output = ''
+
+
 			var date = new Date();
+
+
 			date.setDate(date.getDate() + daysFromNow);
+
+
 			output += date.toLocaleString('en-US', { weekday: 'long' }).toUpperCase()
+
+
 			output += ' ' + date.getDate()
+
+
 			return output
+
+
 		}
+
+
+
+
+
+
 
 		// function that uses OpenWeatherMap's geocoding API to find locations
+
+
 		function search() {
+
+
 			// takes the value from the search input
+
+
 			let searchInput = document.querySelector("#search-input").value;
+
+
 			if (searchInput) {
+
+
 				// creates the API call with the value from the search input as a query
+
+
 				let apiCall = `https://api.openweathermap.org/geo/1.0/direct?q=${searchInput},,US&limit=5&appid=${apiKey}`;
+
+
 				// calls the API
+
+
 				fetch(apiCall)
-					.then((response) => 
-						// after recieving a response, take the response from the server and convert it to JSON 
+
+
+					.then((response) =>
+
+
+						// after recieving a response, take the response from the server and convert it to JSON
+
+
 						response.json()
+
+
 					)
+
+
 					.then((data) => {
+
+
 						// after recieving the converted JSON data, pass the JSON to the renderSearchResults() function
+
+
 						renderSearchResults(data)
+
+
 					});
+
+
 			}
+
+
 		}
+
+
+
+
+
+
 
 		// function that renders the search results as a unordered list
+
+
 		function renderSearchResults(searchResults) {
+
+
 				// selects the unordered list element search-results-list
+
+
 				const ul = document.querySelector('#search-results-list')
+
+
 				// shows the unordered list if was hidden previously
+
+
 				ul.classList.remove("hidden");
+
+
 				// clears out any list items from the previous search
+
+
 				ul.innerHTML = ''
+
+
 				// loops through each search result and creates and attaches a list item for the unordered list
+
+
 				searchResults.forEach((searchResult, index) => {
+
+
 					// creates a new unordered list element
+
+
 					const li = document.createElement('li')
+
+
 					// sets the list item's class as search-result
+
+
 					li.setAttribute('class', 'search-result')
-					// sets the text inside the list item as the name and state of the city 
+
+
+					// sets the text inside the list item as the name and state of the city
+
+
 					const fullName = searchResult.name + ', ' + searchResult.state
+
+
 					li.innerHTML = fullName
+
+
 					// if the list item of a city is clicked, call the selectCity() function
+
+
 					li.addEventListener('click', () => selectCity(fullName, searchResult.name, searchResult.state, searchResult.lat, searchResult.lon))
+
+
 					// attaches the list item elements to search-results-list
+
+
 					ul.appendChild(li)
+
+
 			})	
+
+
 		}
 
+
+
+
+
+
+
 		// function that is called whenever a city has been selected
+
+
 		function selectCity(fullName, name, state, lat, lon) {
+
+
 			// hides the search-results-list since it is not needed right now
+
+
 			document.querySelector('#search-results-list').className = 'hidden'
+
+
 			// sets the global city variable
+
+
 			document.querySelector("#search-input").value = ''
+
+
 			city = {
+
+
 				fullName: fullName,
+
+
 				name: name,
+
+
 				state: state,
+
+
 				lat: lat,
+
+
 				lon: lon
+
+
 			}
-            // BEGIN CODING HERE
+
+
+			document.querySelector('#which-city').innerText = "Weather for " + city.name +  ", "+ city.state;
+
+
+			getWeather()
+
+
+			getAQI()
+
+
 		}
+
+
+           // BEGIN CODING HERE
+
+
+			function getWeather() {
+
+
+				let apiCall = `https://api.openweathermap.org/data/2.5/onecall?lat=${city.lat}&lon=${city.lon}&units=imperial&appid=${apiKey}`;
+
+
+				fetch(apiCall)
+
+
+					.then((response) =>
+
+
+						response.json()
+
+
+					)
+
+
+					.then((data) => {
+
+
+						// sets the global weather variable
+
+
+						weather = data
+
+
+						showWeather()
+
+
+					});
+
+
+			}
+
+
+
+
+
+
+
+			function getAQI() {
+
+
+				let apiCall = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${city.lat}&lon=${city.lon}&appid=${apiKey}`;
+
+
+				fetch(apiCall)
+
+
+					.then((response) =>
+
+
+						response.json()
+
+
+					)
+
+
+					.then((data) => {
+
+
+						// sets the global AQI variable
+
+
+						aqi = data
+
+
+						showAQI()
+
+
+					});
+
+
+			}
+
+
+
+
+
+
+
+			function showWeather() {
+
+
+				document.querySelector('#todays-date').innerText = formatDate();
+
+
+				document.querySelector('#weather').innerText = weather.current.weather[0].description;
+
+
+				document.querySelector('#temperature').innerText = Math.round(weather.current.temp) + "°";
+
+
+				document.querySelector('#emoji').src = `./icons/${weather.current.weather[0].icon}.svg`;
+
+
+				document.querySelector('#emoji').alt = "today's weather emoji"
+
+
+				showAll()
+
+
+			}
+
+
+
+
+
+
+
+			function showAll() {
+
+
+				const fiveDayCards = document.querySelector('#five-day-cards')
+
+
+				fiveDayCards.innerHTML = ""
+
+
+				for (let i = 1; i < 6; i++) {
+
+
+						const today = document.createElement('div')
+
+
+						today.className = 'day-card'
+
+
+						const date = document.createElement('h3')
+
+
+						date.className = 'date'
+
+
+						date.innerHTML = formatDate(i)
+
+
+						today.appendChild(date)
+
+
+						const icon = document.createElement('img')
+
+
+						icon.className = 'card-icon'
+
+
+						icon.src = `./icons/${weather.daily[i].weather[0].icon}.svg`
+
+
+						icon.alt = 'weather-icon'
+
+
+						today.appendChild(icon)
+
+
+						const temperature = document.createElement('h2')
+
+
+						temperature.className = 'temp'
+
+
+						temperature.innerHTML = Math.round(weather.daily[i].temp.max) + ' to ' + Math.round(weather.daily[i].temp.min)
+
+
+					today.appendChild(temperature)
+
+
+					fiveDayCards.appendChild(today)
+
+
+				}
+
+
+			}
+
+
+
+
+
+
+
+			//why doesn't this work??
+
+
+
+
+
+
+
+			// function showWeather() {
+
+
+			// 	document.querySelector('#todays-date').innerText = formatDate();
+
+
+			// 	document.querySelector('#weather').innerText = weather.current.weather[0].description;
+
+
+			// 	document.querySelector('#temperature').innerText = Math.round(weather.current.temp) + "°";
+
+
+			// 	document.querySelector('#emoji').src = `/icons/${weather.current.weather[0].icon}.svg`;
+
+
+			// 	document.querySelector('#current-icon').alt = "today's weather emoji"
+
+
+			// 	const thisWeek = document.querySelector("#five-day-cards");
+
+
+			// 	thisWeek.innerHTML = ""
+
+
+			// 	for(let i = 1; i < 6; i++) {
+
+
+			// 		const today = document.createElement('div')
+
+
+			// 		const date = document.createElement('h3')
+
+
+			// 		date.innerHTML = formateDate(i)
+
+
+			// 		const icon = document.createElement('img')
+
+
+			// 		icon.src = `/icons/${weather.daily[i].weather[0].icon}.svg`
+
+
+			// 		icon.alt = 'weather-icon'
+
+
+			// 		const temp = document.createElement('h2')
+
+
+			// 		temp.innerHTML = Math.round(weather.daily[i].temp.max) + ' to ' + Math.round(weather.daily[i].temp.min)
+
+
+			// 		today.appendChild(date)
+
+
+			// 		today.appendChild(icon)
+
+
+			// 		today.appendChild(temp)
+
+
+			// 		thisWeek.appendChild(today)
+
+
+			// 	}
+
+
+			// }
+
+
+
+
+
+
+
+			function showAQI() {
+
+
+				document.querySelector('#aqi').innerText = 'AQI: ' + aqi.list[0].main.aqi;
+
+
+			}
+
+
 	</script>
+
+
 </html>
+
